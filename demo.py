@@ -93,21 +93,45 @@ r = results[0]
 # # print(r['rois'][0].shape)
 # # print(r['rois'])
 
+diff = image.copy()
 for idx in range(r['masks'].shape[2]):
-    # print(r['masks'][:,:,idx].shape)
-    # print(type(r['masks'][:,:,idx]))
-    # print(r['masks'][:,:,idx])
 
     name = str(idx) + '_my.png'
     cv2.imwrite(name, r['masks'][:,:,idx] * 255)
-    # img = Image.fromarray(r['masks'][:,:,idx] * 255)   
-    # img.save(name)
+    
+    mask = r['masks'][:,:,idx]
+    for c in range(3):
+            diff[:, :, c] = np.where(mask == 1,
+                                    diff[:, :, c] * 0,
+                                    diff[:, :, c])
 
-filt_idx = (r['masks'][:,:,idx][0]!=0)
-print(filt_idx.shape)
-print(filt_idx)
-dst[filt_idx] = image[filt_idx]
-cv2.imwrite("masked.png", dst)
+cv2.imwrite("masked.png", diff)
+
+avg_color_per_row = np.average(image, axis=0)
+avg_color = np.average(avg_color_per_row, axis=0)
+
+diff_avg_color_per_row = np.average(diff, axis=0)
+diff_avg_color = np.average(diff_avg_color_per_row, axis=0)
+
+print(avg_color, diff_avg_color)
+print(r['class_ids'])
+
+#Break down frames into parts
+height, width = diff.shape[:2]
+print(height, width)
+h_gap = height//3
+w_gap = width//4
+
+count = 1
+for start_row in range(0, height, h_gap):
+    for start_col in range(0, width, w_gap):
+        name = 'part_' + str(count) + '.png'
+        count += 1
+        print(name)
+        print(start_row, start_row + h_gap, start_col, start_col + w_gap)
+        if (start_row + h_gap) <= height and (start_col + w_gap) <= width:
+            
+            cv2.imwrite(name, image[start_row:start_row+h_gap, start_col:start_col+w_gap])
 
 # Visualize result
 visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],

@@ -19,7 +19,7 @@ if "DISPLAY" not in os.environ:
 import matplotlib.patches as patches
 import matplotlib.lines as lines
 from matplotlib.patches import Polygon
-
+import cv2
 import utils
 
 
@@ -72,8 +72,8 @@ def apply_mask(image, mask, color, alpha=0.5):
                                   image[:, :, c] *
                                   (1 - alpha) + alpha * color[c] * 255,
                                   image[:, :, c])
-        print("This is where you do something!")
-        print(type(image))
+        # print("This is where you do something!")
+        # print(type(image))
     return image
 
 
@@ -147,8 +147,8 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             p = Polygon(verts, facecolor="none", edgecolor=color)
             ax.add_patch(p)
 
-    ax.imshow(masked_image.astype(np.uint8))
-    plt.savefig('fig1.jpg')
+    ax.imshow(cv2.cvtColor(masked_image.astype(np.uint8), cv2.COLOR_BGR2RGB))
+    plt.savefig('output.png')
     plt.show()
     
 
