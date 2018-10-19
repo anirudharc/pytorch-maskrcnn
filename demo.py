@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from PIL import Image
 from scipy.misc import toimage
+import cv2
 
 import coco
 import utils
@@ -70,12 +71,20 @@ class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
 
 # Load a random image from the images folder
 file_names = next(os.walk(IMAGE_DIR))[2]
-image = skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
+# image = skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
+image = cv2.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
 
 # Run detection
 results = model.detect([image])
-
-print(results)
+# print(type(image))
+# print(image.shape)
+# print(image)
+inp = Image.fromarray(image) 
+inp.save("input1.png")
+cv2.imwrite("input2.png", image)
+# inp_snippet = cv2.cvtColor(np.array(inp), cv2.COLOR_RGB2BGR)
+# print(type(inp_snippet))
+cv2.imwrite("input_snippet.png", image[10:100, 10:100])
 
 r = results[0]
 # # print(type(r['rois'][0]))
@@ -84,13 +93,21 @@ r = results[0]
 # # print(r['rois'][0].shape)
 # # print(r['rois'])
 
-# for idx in range(r['masks'].shape[2]):
-#     print(r['masks'][:,:,idx].shape)
-#     print(type(r['masks'][:,:,idx]))
-#     print(r['masks'][:,:,idx])
-#     img = Image.fromarray(r['masks'][:,:,idx])
-#     name = str(idx) + '_my.png'
-#     img.save(name)
+for idx in range(r['masks'].shape[2]):
+    # print(r['masks'][:,:,idx].shape)
+    # print(type(r['masks'][:,:,idx]))
+    # print(r['masks'][:,:,idx])
+
+    name = str(idx) + '_my.png'
+    cv2.imwrite(name, r['masks'][:,:,idx] * 255)
+    # img = Image.fromarray(r['masks'][:,:,idx] * 255)   
+    # img.save(name)
+
+filt_idx = (r['masks'][:,:,idx][0]!=0)
+print(filt_idx.shape)
+print(filt_idx)
+dst[filt_idx] = image[filt_idx]
+cv2.imwrite("masked.png", dst)
 
 # Visualize result
 visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
