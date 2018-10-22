@@ -148,7 +148,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             ax.add_patch(p)
 
     ax.imshow(cv2.cvtColor(masked_image.astype(np.uint8), cv2.COLOR_BGR2RGB))
-    plt.savefig('output.png')
+    plt.savefig('./result/output.png')
     plt.show()
     
 
